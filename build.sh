@@ -18,7 +18,7 @@ then
   decb dskini $DISK_IMAGE
 fi
 
-if [ -e "$1.asm" ]
+if [ -e "./source/$1.asm" ]
 then
   echo "Building ./source/$1.asm into ./bin/$1.bin..."
   lwasm -b -9 ./source/$1.asm --output=./bin/$1.bin --list=./logs/$1.txt
