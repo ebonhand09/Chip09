@@ -32,8 +32,7 @@ Chip8_RAM			ZMB	$100				; CHIP-8 RAM - $1600
 Video_RAM			INCLUDEBIN	"./data/chip09.dat"	; CHIP-8 Video RAM - $1700 - 256 bytes
 Chip8_Program			INCLUDEBIN	"./roms/chip8test.rom"	; CHIP-8 Program to run
 Chip8_RestOfRAM			ZMB	Chip8_RAM+4096-*		; Empty RAM
-Chip8_EndOfRAM			ZMB	1				; Placeholder/extra byte to get a convenient label
-				
+Chip8_EndOfRAM				
 Chip8_Vars				
 Chip8_V0			ZMB	1
 Chip8_V1			ZMB	1
@@ -51,6 +50,8 @@ Chip8_VC			ZMB	1
 Chip8_VD			ZMB	1
 Chip8_VE			ZMB	1
 Chip8_VF			ZMB	1
+Chip8_VX			ZMB	1
+Chip8_VY			ZMB	1
 Chip8_I				ZMB	2
 Chip8_Instruction		ZMB	4
 Chip8_PC			ZMB	2
