@@ -36,6 +36,7 @@ OpTable
 			FDB	Op6XNN_SetVar
 			FDB	Op7XNN_AddToVar
 			FDB	Op8XYN_VariableManipulation
+			FDB	Op9XY0_SkipNextIfVarsNotEqual
 			
 OpTableFor8XYN
 			FDB	Op8XY0_CopyYToX
@@ -245,13 +246,14 @@ Op8XxE_ShiftLeftXCarry		LDY	#Chip8_Vars
 				RTS
 
 *************************************************
-* 
+* 9 - Skips the next instruction if VX doesn't equal VY.
 *************************************************
-
+Op9XY0_SkipNextIfVarsNotEqual	JMP	Loop
+				RTS
 
 
 *************************************************
-* 
+* A - Sets I to the address NNN.
 *************************************************
 
 
