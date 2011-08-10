@@ -1,9 +1,15 @@
+*************************************************
+* IntHandler - Interrupt Handler
+*************************************************		
+
+
 ; X - Pointer to lookup table - to allow ABX
 ; Y - Pointer to Coco video byte
 ; U - Pointer Chip8 video byte
 ; A/B/D - Transformations/Offsets
 ; Use CMPX / BNE for loop for now until I unroll
 
+IntHandler
 				LDY	#GraphicsPage+16	; offset so I can write behind
 				PSHS	U
 				LDU	#Video_RAM
@@ -79,5 +85,27 @@ DrawLine
 				CMPU	#Video_RAM+256
 				LBNE	DrawLine	
 				
-				PULS	U	
+				PULS	U
+				
+IntExit				LDA	$FF02
+				RTI
+
+*************************************************
+* SetIntHandler - Sets up the Interrupt Handler
+*************************************************
+SetIntHandler
+				ORCC	#$50		; Set I and F bits of CC
+				LDA	#$7E		; JMP Opcode
+				STA	$010C		; JMP Opcode in Vector Table
+				LDX	#IntHandler
+				STX	$010D
+		
+				LDA	$FF03		; Read CRB
+				ORA	#$05		; Set bits 0 and 2
+				ORA	#%00000010	; Set bit 1
+				STA	$FF03		; Put in CRB
+		
+				LDA	$FF02		; Read DRB(Clear Flag)
+				ANDCC	#$EF		; Clear I bit (allow ints)
+				RTS
 
