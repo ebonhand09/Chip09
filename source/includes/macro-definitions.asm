@@ -29,37 +29,3 @@ GetPreByteIntoB			MACRO
 				LSRB
 				LSRB
 				ENDM
-				
-GetValueOfVariableAIntoA	MACRO
-				LDY	#Chip8_Vars
-				TSTA	
-				BEQ	@SkipAdjust
-				LEAY	A,Y
-@SkipAdjust			LDA	,Y
-				ENDM
-
-GetValueOfVariableBIntoB	MACRO
-				LDY	#Chip8_Vars
-				TSTB	
-				BEQ	@SkipAdjust
-				LEAY	B,Y
-@SkipAdjust			LDB	,Y
-				ENDM
-				
-SetYToPointAtVXFromA		MACRO
-				LDY	#Chip8_Vars
-				TSTA	
-				BEQ	@SkipAdjust
-				LEAY	A,Y
-@SkipAdjust			NOP
-				ENDM
-				
-SetYToPointAtVYFromB		MACRO
-				LDY	#Chip8_Vars
-				TSTB	
-				BEQ	@SkipAdjust
-				LEAY	B,Y
-@SkipAdjust			NOP
-				ENDM
-			
-
