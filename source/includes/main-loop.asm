@@ -2,7 +2,9 @@
 			;WaitForNextInterrupt			; Make the display prettier
 			
 			LDX	#Chip8_RAM+$200			; Set location of first instruction
-			STX	Chip8_PC			; U = Chip8 Program Counter
+			STX	Chip8_PC			; X = Chip8 Program Counter
+			LDU	#Chip8_Stack			; U = Chip8 Stack
+			STU	Chip8_StackPointer
 			
 			;**** Main fetch/decode/execute loop
 			
@@ -27,7 +29,7 @@ ReturnFromExecute	JMP	MainLoop
 Loop			JMP	Loop
 
 OpTable			
-			FDB	Loop				
+			FDB	Op0NNN_System				
 			FDB	Op1NNN_Jump
 			FDB	Op2NNN_Subroutine
 			FDB	Op3XNN_SkipNextIfEqual
@@ -38,6 +40,8 @@ OpTable
 			FDB	Op8XYN_VariableManipulation
 			FDB	Op9XY0_SkipNextIfVarsNotEqual
 			
+			INCLUDE		"./optable-0nnn.asm"	; System opcode table			
+			
 OpTableFor8XYN
 			FDB	Op8XY0_CopyYToX
 			FDB	Op8XY1_XOrYIntoX
@@ -47,26 +51,61 @@ OpTableFor8XYN
 			FDB	Op8XY5_XMinusYIntoXCarry
 			FDB	Op8Xx6_ShiftRightXCarry
 			FDB	Op8XY7_YMinusXIntoXCarry
-			FDB	Loop	; nop - 8
-			FDB	Loop	; nop - 9
-			FDB	Loop	; nop - A
-			FDB	Loop	; nop - B
-			FDB	Loop	; nop - C
-			FDB	Loop	; nop - D
+			FDB	Loop				; nop - 8
+			FDB	Loop				; nop - 9
+			FDB	Loop				; nop - A
+			FDB	Loop				; nop - B
+			FDB	Loop				; nop - C
+			FDB	Loop				; nop - D
 			FDB	Op8XxE_ShiftLeftXCarry
 			
+*************************************************
+* 0 - Call System
+*************************************************
+Op0NNN_System			LDY	#OpTableFor0NNN
+				GetOtherHalfOfOpIntoA	; B is pre-set
+				BEQ	@DoSystemLookup
+				RTS			; Calling an undefined routine
+@DoSystemLookup			LSLB			; Since table is a set of double-bytes, offset must be doubled
+				ROLA					
+				JSR	[D,Y]
+				RTS
+				
+*************************************************
+* 00-E0 - Clear Screen
+*************************************************
+Op00E0_ClearScreen		PSHS	X
+				LDX	#Video_RAM
+				LDD	#$00
+				LDY	#120
+!				STD	,X++
+				LEAY	-1,Y
+				BNE	<
+				PULS	X
+				RTS
+				
+*************************************************
+* 00-EE - Return from Subroutine
+*************************************************
+Op00EE_ReturnFromSubroutine	PULU	X
+				RTS
 
 *************************************************
 * 1 - Jumps to address NNN.
 *************************************************
-Op1NNN_Jump			JMP	Loop
+Op1NNN_Jump			GetOtherHalfOfOpIntoA	; B is pre-set
+				LDX	#Chip8_RAM
+				LEAX	D,X	
 				RTS		
 *************************************************
 
 *************************************************
 * 2 - Calls subroutine at NNN.
 *************************************************
-Op2NNN_Subroutine		JMP	Loop
+Op2NNN_Subroutine		PSHU	X
+				STU	Chip8_StackPointer
+				GetOtherHalfOfOpIntoA	; B is pre-set
+				LEAX	D,X
 				RTS		
 *************************************************
 

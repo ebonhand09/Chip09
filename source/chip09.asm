@@ -56,8 +56,8 @@ Chip8_I				ZMB	2
 Chip8_Instruction		ZMB	4
 Chip8_PC			ZMB	2
 Chip8_StackPointer		ZMB	2
-Chip8_Stack			ZMB	63
-Chip8_StackEnd			ZMB	1
+Chip8_StackStart		ZMB	63
+Chip8_Stack			ZMB	1
 				
 				
 				;* Bit Transformation Table - CHIP-8 Video to Coco G1R Video
