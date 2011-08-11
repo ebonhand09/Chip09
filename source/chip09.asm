@@ -29,8 +29,9 @@
 GraphicsPage			RMB	1024				; Coco video RAM - $1600
 				
 Chip8_RAM			ZMB	$100				; CHIP-8 RAM - $2000
-Video_RAM			INCLUDEBIN	"./data/chip09.dat"	; CHIP-8 Video RAM - $2100 - 256 bytes
-Chip8_Program			INCLUDEBIN	"./roms/chip8test.rom"	; CHIP-8 Program to run
+;Video_RAM			INCLUDEBIN	"./data/chip09.dat"	; CHIP-8 Video RAM - $2100 - 256 bytes
+Video_RAM			ZMB	256
+Chip8_Program			INCLUDEBIN	"./roms/breakout.rom"	; CHIP-8 Program to run
 Chip8_RestOfRAM			ZMB	Chip8_RAM+4096-*		; Empty RAM
 Chip8_EndOfRAM				
 Chip8_Vars				
@@ -60,6 +61,9 @@ Chip8_StackStart		ZMB	63
 Chip8_Stack			ZMB	1
 Chip8_Seed			ZMB	1
 Chip8_Random			ZMB	2
+Chip8_PatternHigh		ZMB	1
+Chip8_PatternLow		ZMB	1
+Chip8_PatternCount		ZMB	1
 			
 				
 				;* Bit Transformation Table - CHIP-8 Video to Coco G1R Video

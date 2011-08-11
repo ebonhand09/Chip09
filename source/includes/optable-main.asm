@@ -12,3 +12,4 @@ OpTable
 			FDB	OpANNN_SetI
 			FDB	OpBNNN_JumpToAddressPlusV0
 			FDB	OpCXNN_RandomNumberAndNN
+			FDB	OpDXYN_DrawSprite

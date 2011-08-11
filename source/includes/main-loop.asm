@@ -339,14 +339,94 @@ OpCXNN_RandomNumberAndNN	LDA	#$0E		; Program execution space
 				ADDA	,Y
 				EORA	$FF,Y
 				STA	Chip8_Seed
-				ANDA	#Chip8_Instruction+1
+				ANDA	Chip8_Instruction+1
 				TFR	A,B
 				GetOtherHalfOfOpIntoA
 				LDY	#Chip8_Vars
 				STB	A,Y
 				RTS
 				
+*************************************************
+* D - Draw sprite at I to VX, VY with N lines
+*************************************************
+OpDXYN_DrawSprite		PSHS	X		; X = Source (Sprite)
+				LDX	#Chip8_RAM
+				CLR	Chip8_VF
+				LDD	Chip8_I
+				LEAX	D,X		; X now points at sprite
+				
+				LDY	#Chip8_Vars
+				GetPreByteIntoB
+				LDB	B,Y
+				STB	Chip8_VY	; VY = vertical loc
+				
+				GetOtherHalfOfOpIntoA
+				LDA	A,Y
+				STA	Chip8_VX	; VX = horizontal loc
+				
+				GetPostByteIntoB
+				BNE	@Not16Case
+				LDB	#16
+@Not16Case			STB	Chip8_PatternCount	; N = number of vertbytes
 
+@GetByte			LDA	,X
+				STA	Chip8_PatternHigh
+				CLR	Chip8_PatternLow
+				LDB	Chip8_VX
+				ANDB	#7
+@CheckPosition			BEQ	@CorrectPosition
+				LSR	Chip8_PatternHigh
+				ROR	Chip8_PatternLow
+				DECB
+				BNE	@CheckPosition				
+@CorrectPosition		LDA	Chip8_VY
+				ANDA	#$1F	; Mask to 5 bits for wrap
+				ASLA
+				ASLA
+				ASLA	
+				LDB	Chip8_VX
+				ANDB	#$3F	; Mask to 6 bits
+				LSRB
+				LSRB
+				LSRB
+				PSHS	A
+				ADDB	,S+
+				PSHS	X
+				LDX	#Video_RAM
+				ABX
+				TFR	X,Y
+				PULS	X
+				LDA	Chip8_PatternHigh
+				LDB	Chip8_PatternHigh
+				EORA	,Y
+				ORB	,Y
+				STA	,Y
+				CMPB	,Y
+				BEQ	@NoOverlapHigh
+				LDA	$1
+				STA	Chip8_VF
+@NoOverlapHigh			LDA	Chip8_PatternLow
+				LDB	Chip8_PatternLow
+				EORA	1,Y
+				ORB	1,Y
+				STA	1,Y
+				CMPB	1,Y
+				BEQ	@NoOverlapLow
+				LDA	$1
+				STA	Chip8_VF
+@NoOverlapLow			INC	Chip8_VY
+				LEAX	1,X
+				DEC	Chip8_PatternCount
+				BNE	@GetByte
+				
+				PULS	X
+				RTS
+				
+				
+				
+				
+				
+				
 
 
 
