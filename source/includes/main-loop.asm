@@ -28,36 +28,14 @@ ReturnFromExecute	JMP	MainLoop
 			
 Loop			JMP	Loop
 
-OpTable			
-			FDB	Op0NNN_System				
-			FDB	Op1NNN_Jump
-			FDB	Op2NNN_Subroutine
-			FDB	Op3XNN_SkipNextIfEqual
-			FDB	Op4XNN_SkipNextIfNotEqual
-			FDB	Op5XY0_SkipNextIfVarsEqual
-			FDB	Op6XNN_SetVar
-			FDB	Op7XNN_AddToVar
-			FDB	Op8XYN_VariableManipulation
-			FDB	Op9XY0_SkipNextIfVarsNotEqual
 			
-			INCLUDE		"./optable-0nnn.asm"	; System opcode table			
+			INCLUDE		"./optable-main.asm"	; System opcode table
 			
-OpTableFor8XYN
-			FDB	Op8XY0_CopyYToX
-			FDB	Op8XY1_XOrYIntoX
-			FDB	Op8XY2_XAndYIntoX
-			FDB	Op8XY3_XEorYIntoX
-			FDB	Op8XY4_XPlusYIntoXCarry
-			FDB	Op8XY5_XMinusYIntoXCarry
-			FDB	Op8Xx6_ShiftRightXCarry
-			FDB	Op8XY7_YMinusXIntoXCarry
-			FDB	Loop				; nop - 8
-			FDB	Loop				; nop - 9
-			FDB	Loop				; nop - A
-			FDB	Loop				; nop - B
-			FDB	Loop				; nop - C
-			FDB	Loop				; nop - D
-			FDB	Op8XxE_ShiftLeftXCarry
+			INCLUDE		"./optable-0nnn.asm"	; System opcode table
+			
+			INCLUDE		"./optable-8xyn.asm"	; System opcode table		
+			
+
 			
 *************************************************
 * 0 - Call System
@@ -89,14 +67,15 @@ Op00E0_ClearScreen		PSHS	X
 *************************************************
 Op00EE_ReturnFromSubroutine	PULU	X
 				RTS
-
+				
 *************************************************
 * 1 - Jumps to address NNN.
 *************************************************
 Op1NNN_Jump			GetOtherHalfOfOpIntoA	; B is pre-set
 				LDX	#Chip8_RAM
 				LEAX	D,X	
-				RTS		
+				RTS
+						
 *************************************************
 
 *************************************************
@@ -106,28 +85,52 @@ Op2NNN_Subroutine		PSHU	X
 				STU	Chip8_StackPointer
 				GetOtherHalfOfOpIntoA	; B is pre-set
 				LEAX	D,X
-				RTS		
+				RTS
+					
 *************************************************
 
 *************************************************
 * 3 - Skips the next instruction if VX equals NN.
 *************************************************
-Op3XNN_SkipNextIfEqual		JMP	Loop
-				RTS		
+Op3XNN_SkipNextIfEqual		LDY	#Chip8_Vars
+				GetOtherHalfOfOpIntoA
+				LDA	A,Y
+				CMPA	Chip8_Instruction+1	; Value of B in 
+				BNE	@Return
+				LEAX	2,X		; Skip next instruction
+@Return				RTS
+						
 *************************************************
 
 *************************************************
 * 4 - Skips the next instruction if VX doesn't equal NN.
 *************************************************
-Op4XNN_SkipNextIfNotEqual	JMP	Loop
-				RTS		
+Op4XNN_SkipNextIfNotEqual	LDY	#Chip8_Vars
+				GetOtherHalfOfOpIntoA
+				LDA	A,Y
+				CMPA	Chip8_Instruction+1	; Value of B in 
+				BEQ	@Return
+				LEAX	2,X		; Skip next instruction
+@Return				RTS
+
 *************************************************
 
 *************************************************
 * 5 - Skips the next instruction if VX equals VY.
 *************************************************
-Op5XY0_SkipNextIfVarsEqual	JMP	Loop
-				RTS		
+Op5XY0_SkipNextIfVarsEqual	LDY	#Chip8_Vars
+				GetOtherHalfOfOpIntoA
+				ANDB	#$F0
+				LSRB
+				LSRB
+				LSRB
+				LSRB
+				LDA	A,Y
+				CMPA	B,Y
+				BNE	@Return
+				LEAX	2,X		; Skip next instruction
+@Return				RTS
+
 *************************************************
 
 *************************************************
@@ -136,7 +139,8 @@ Op5XY0_SkipNextIfVarsEqual	JMP	Loop
 Op6XNN_SetVar			GetOtherHalfOfOpIntoA
 				LDY	#Chip8_Vars
 				STB	A,Y
-				RTS		
+				RTS
+				
 *************************************************
 
 *************************************************
@@ -147,7 +151,8 @@ Op7XNN_AddToVar			GetOtherHalfOfOpIntoA
 				LEAY	A,Y
 				ADDB	,Y
 				STB	,Y
-				RTS		
+				RTS
+						
 *************************************************
 
 *************************************************
@@ -285,15 +290,64 @@ Op8XxE_ShiftLeftXCarry		LDY	#Chip8_Vars
 				RTS
 
 *************************************************
-* 9 - Skips the next instruction if VX doesn't equal VY.
+* 9-0 - Skips the next instruction if VX doesn't equal VY.
 *************************************************
-Op9XY0_SkipNextIfVarsNotEqual	JMP	Loop
-				RTS
+Op9XY0_SkipNextIfVarsNotEqual	LDY	#Chip8_Vars
+				GetOtherHalfOfOpIntoA
+				ANDB	#$F0
+				LSRB
+				LSRB
+				LSRB
+				LSRB
+				LDA	A,Y
+				CMPA	B,Y
+				BEQ	@Return
+				LEAX	2,X		; Skip next instruction
+@Return				RTS
 
+*************************************************
 
 *************************************************
 * A - Sets I to the address NNN.
 *************************************************
+OpANNN_SetI			GetOtherHalfOfOpIntoA
+				STD	Chip8_I
+				RTS
+
+*************************************************
+
+*************************************************
+* B - Jumps to the address NNN plus V0.
+*************************************************
+OpBNNN_JumpToAddressPlusV0	GetOtherHalfOfOpIntoA	; B is pre-set
+				LDX	#Chip8_RAM
+				LEAX	D,X
+				LDY	#Chip8_Vars
+				CLRA
+				LDB	Chip8_V0
+				LEAX	D,X
+				RTS
+
+*************************************************
+* C - Sets VX to a random number and NN.
+*************************************************
+OpCXNN_RandomNumberAndNN	LDA	#$0E		; Program execution space
+				STA	Chip8_Random
+				INC	Chip8_Random+1
+				LDY	Chip8_Random
+				LDA	Chip8_Seed
+				ADDA	,Y
+				EORA	$FF,Y
+				STA	Chip8_Seed
+				ANDA	#Chip8_Instruction+1
+				TFR	A,B
+				GetOtherHalfOfOpIntoA
+				LDY	#Chip8_Vars
+				STB	A,Y
+				RTS
+				
+
+
 
 
 

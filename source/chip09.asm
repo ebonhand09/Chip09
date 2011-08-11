@@ -24,12 +24,12 @@
 				INCLUDE		"./includes/graphics-routines.asm"
 				
 				;**** Storage area for data, variables, etc
-				ORG	$1200
+				ORG	$1600
 								
-GraphicsPage			RMB	1024				; Coco video RAM - $1200
+GraphicsPage			RMB	1024				; Coco video RAM - $1600
 				
-Chip8_RAM			ZMB	$100				; CHIP-8 RAM - $1600
-Video_RAM			INCLUDEBIN	"./data/chip09.dat"	; CHIP-8 Video RAM - $1700 - 256 bytes
+Chip8_RAM			ZMB	$100				; CHIP-8 RAM - $2000
+Video_RAM			INCLUDEBIN	"./data/chip09.dat"	; CHIP-8 Video RAM - $2100 - 256 bytes
 Chip8_Program			INCLUDEBIN	"./roms/chip8test.rom"	; CHIP-8 Program to run
 Chip8_RestOfRAM			ZMB	Chip8_RAM+4096-*		; Empty RAM
 Chip8_EndOfRAM				
@@ -58,7 +58,9 @@ Chip8_PC			ZMB	2
 Chip8_StackPointer		ZMB	2
 Chip8_StackStart		ZMB	63
 Chip8_Stack			ZMB	1
-				
+Chip8_Seed			ZMB	1
+Chip8_Random			ZMB	2
+			
 				
 				;* Bit Transformation Table - CHIP-8 Video to Coco G1R Video
 				INCLUDE		"./includes/bit-transformation-table.asm"

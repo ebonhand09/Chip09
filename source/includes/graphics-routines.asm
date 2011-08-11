@@ -1,5 +1,5 @@
 *************************************************
-* SetVideoMode - Sets G1R, Graphics Page to $1200
+* SetVideoMode - Sets G1R, Graphics Page to $1600
 *************************************************
 
 SetVideoMode			LDA	$FF23		; Get CRB
@@ -26,8 +26,8 @@ SetVideoMode			LDA	$FF23		; Get CRB
 				STA	$FFCD				
 				; F2	$FFCB / $FFCA	- 0
 				STA	$FFCA				
-				; F1	$FFC9 / $FFC8	- 0
-				STA	$FFC8				
+				; F1	$FFC9 / $FFC8	- 1
+				STA	$FFC9				
 				; F0	$FFC7 / $FFC6	- 1
 				STA	$FFC7
 				
