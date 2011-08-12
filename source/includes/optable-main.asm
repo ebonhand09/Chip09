@@ -13,3 +13,5 @@ OpTable
 			FDB	OpBNNN_JumpToAddressPlusV0
 			FDB	OpCXNN_RandomNumberAndNN
 			FDB	OpDXYN_DrawSprite
+			FDB	OpEXNN_SkipIfKey
+			FDB	OpFXNN_Misc

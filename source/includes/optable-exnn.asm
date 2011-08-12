@@ -1,4 +1,4 @@
-OpTableFor0NNN		FDB	Loop				; nop - 00
+OpTableForEXNN		FDB	Loop				; nop - 00
 			FDB	Loop				; nop - 01
 			FDB	Loop				; nop - 02
 			FDB	Loop				; nop - 03
@@ -156,10 +156,10 @@ OpTableFor0NNN		FDB	Loop				; nop - 00
 			FDB	Loop				; nop - 9b
 			FDB	Loop				; nop - 9c
 			FDB	Loop				; nop - 9d
-			FDB	Loop				; nop - 9e
+			FDB	OpEX9E_SkipNextIfKey		; 9E - Skip Next If Key Pressed
 			FDB	Loop				; nop - 9f
 			FDB	Loop				; nop - a0
-			FDB	Loop				; nop - a1
+			FDB	OpEXA1_SkipNextIfNotKey		; A1 - Skip Next If Key Not Pressed
 			FDB	Loop				; nop - a2
 			FDB	Loop				; nop - a3
 			FDB	Loop				; nop - a4
@@ -222,7 +222,7 @@ OpTableFor0NNN		FDB	Loop				; nop - 00
 			FDB	Loop				; nop - dd
 			FDB	Loop				; nop - de
 			FDB	Loop				; nop - df
-			FDB	Op00E0_ClearScreen		; EO - ClearScreen
+			FDB	Loop				; nop - e0
 			FDB	Loop				; nop - e1
 			FDB	Loop				; nop - e2
 			FDB	Loop				; nop - e3
@@ -236,7 +236,7 @@ OpTableFor0NNN		FDB	Loop				; nop - 00
 			FDB	Loop				; nop - eb
 			FDB	Loop				; nop - ec
 			FDB	Loop				; nop - ed
-			FDB	Op00EE_ReturnFromSubroutine	; EE - ReturnFromSubroutine
+			FDB	Loop				; nop - ee
 			FDB	Loop				; nop - ef
 			FDB	Loop				; nop - f0
 			FDB	Loop				; nop - f1

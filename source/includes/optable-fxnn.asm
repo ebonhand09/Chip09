@@ -1,14 +1,14 @@
-OpTableFor0NNN		FDB	Loop				; nop - 00
+OpTableForFXNN		FDB	Loop				; nop - 00
 			FDB	Loop				; nop - 01
 			FDB	Loop				; nop - 02
 			FDB	Loop				; nop - 03
 			FDB	Loop				; nop - 04
 			FDB	Loop				; nop - 05
 			FDB	Loop				; nop - 06
-			FDB	Loop				; nop - 07
+			FDB	OpFX07_SetVXToDisplayTimer	; 07 - Set VX to Display Timer
 			FDB	Loop				; nop - 08
 			FDB	Loop				; nop - 09
-			FDB	Loop				; nop - 0a
+			FDB	OpFX0A_WaitForKeyIntoVX		; 0A - Wait For Key Into VX
 			FDB	Loop				; nop - 0b
 			FDB	Loop				; nop - 0c
 			FDB	Loop				; nop - 0d
@@ -19,16 +19,16 @@ OpTableFor0NNN		FDB	Loop				; nop - 00
 			FDB	Loop				; nop - 12
 			FDB	Loop				; nop - 13
 			FDB	Loop				; nop - 14
-			FDB	Loop				; nop - 15
+			FDB	OpFX15_SetDelayTimerToVX	; 15 - Set Delay Timer To VX
 			FDB	Loop				; nop - 16
 			FDB	Loop				; nop - 17
-			FDB	Loop				; nop - 18
+			FDB	OpFX18_SetSoundTimerToVX	; 18 - Set Sound Timer To VX
 			FDB	Loop				; nop - 19
 			FDB	Loop				; nop - 1a
 			FDB	Loop				; nop - 1b
 			FDB	Loop				; nop - 1c
 			FDB	Loop				; nop - 1d
-			FDB	Loop				; nop - 1e
+			FDB	OpFX1E_AddVXToI			; 1E - Add VX To I
 			FDB	Loop				; nop - 1f
 			FDB	Loop				; nop - 20
 			FDB	Loop				; nop - 21
@@ -39,7 +39,7 @@ OpTableFor0NNN		FDB	Loop				; nop - 00
 			FDB	Loop				; nop - 26
 			FDB	Loop				; nop - 27
 			FDB	Loop				; nop - 28
-			FDB	Loop				; nop - 29
+			FDB	OpFX29_SetIToFontForVX		; 29 - Set I To Font For VX
 			FDB	Loop				; nop - 2a
 			FDB	Loop				; nop - 2b
 			FDB	Loop				; nop - 2c
@@ -49,7 +49,7 @@ OpTableFor0NNN		FDB	Loop				; nop - 00
 			FDB	Loop				; nop - 30
 			FDB	Loop				; nop - 31
 			FDB	Loop				; nop - 32
-			FDB	Loop				; nop - 33
+			FDB	OpFX33_BCDVXToI			; 33 - BCD VX To I	
 			FDB	Loop				; nop - 34
 			FDB	Loop				; nop - 35
 			FDB	Loop				; nop - 36
@@ -83,7 +83,7 @@ OpTableFor0NNN		FDB	Loop				; nop - 00
 			FDB	Loop				; nop - 52
 			FDB	Loop				; nop - 53
 			FDB	Loop				; nop - 54
-			FDB	Loop				; nop - 55
+			FDB	OpFX55_StoreV0ToVXAtI		; 55 - Store V0 To VX At I
 			FDB	Loop				; nop - 56
 			FDB	Loop				; nop - 57
 			FDB	Loop				; nop - 58
@@ -99,7 +99,7 @@ OpTableFor0NNN		FDB	Loop				; nop - 00
 			FDB	Loop				; nop - 62
 			FDB	Loop				; nop - 63
 			FDB	Loop				; nop - 64
-			FDB	Loop				; nop - 65
+			FDB	OpFX65_LoadVXToV0FromI		; 65 - Load VX to V0 From I
 			FDB	Loop				; nop - 66
 			FDB	Loop				; nop - 67
 			FDB	Loop				; nop - 68
@@ -222,7 +222,7 @@ OpTableFor0NNN		FDB	Loop				; nop - 00
 			FDB	Loop				; nop - dd
 			FDB	Loop				; nop - de
 			FDB	Loop				; nop - df
-			FDB	Op00E0_ClearScreen		; EO - ClearScreen
+			FDB	Loop				; nop - e0
 			FDB	Loop				; nop - e1
 			FDB	Loop				; nop - e2
 			FDB	Loop				; nop - e3
@@ -236,7 +236,7 @@ OpTableFor0NNN		FDB	Loop				; nop - 00
 			FDB	Loop				; nop - eb
 			FDB	Loop				; nop - ec
 			FDB	Loop				; nop - ed
-			FDB	Op00EE_ReturnFromSubroutine	; EE - ReturnFromSubroutine
+			FDB	Loop				; nop - ee
 			FDB	Loop				; nop - ef
 			FDB	Loop				; nop - f0
 			FDB	Loop				; nop - f1

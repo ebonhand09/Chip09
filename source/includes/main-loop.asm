@@ -33,9 +33,11 @@ Loop			JMP	Loop
 			
 			INCLUDE		"./optable-0nnn.asm"	; System opcode table
 			
-			INCLUDE		"./optable-8xyn.asm"	; System opcode table		
+			INCLUDE		"./optable-8xyn.asm"	; Variable Manipulations opcode table		
 			
-
+			INCLUDE		"./optable-exnn.asm"	;
+			
+			INCLUDE		"./optable-fxnn.asm"	;
 			
 *************************************************
 * 0 - Call System
@@ -350,6 +352,7 @@ OpCXNN_RandomNumberAndNN	LDA	#$0E		; Program execution space
 * D - Draw sprite at I to VX, VY with N lines
 *************************************************
 OpDXYN_DrawSprite		PSHS	X		; X = Source (Sprite)
+				DisableInterrupts
 				LDX	#Chip8_RAM
 				CLR	Chip8_VF
 				LDD	Chip8_I
@@ -418,15 +421,214 @@ OpDXYN_DrawSprite		PSHS	X		; X = Source (Sprite)
 				LEAX	1,X
 				DEC	Chip8_PatternCount
 				BNE	@GetByte
-				
+				EnableInterrupts
 				PULS	X
 				RTS
 				
+*************************************************
+* E - Key routines
+*************************************************			
+OpEXNN_SkipIfKey		LDY	#OpTableForEXNN
+				CLRA
+				LDB	Chip8_Instruction+1	; This line shouldn't be required..?
+				LSLB
+				ROLA				
+				JSR	[D,Y]
+				RTS
+				
+*************************************************
+* EX9E - Skips the next instruction if the key stored in VX is pressed.
+*************************************************
+OpEX9E_SkipNextIfKey		LDY	#Chip8_Vars
+				GetOtherHalfOfOpIntoA
+				LDB	A,Y			; B now holds key to check for
+				LSLB				; Double it for index
+				LDY	#KeymapTable
+				LEAY	B,Y
+				LDA	,Y
+				STA	Keyboard_Row
+				LDA	Keyboard_Scan
+				BITA	1,Y
+				BEQ	@NotPressed
+				LEAX	2,X
+@NotPressed			RTS
+
+*************************************************
+* EXA1 - Skips the next instruction if the key stored in VX is not pressed.
+*************************************************
+OpEXA1_SkipNextIfNotKey		LDY	#Chip8_Vars
+				GetOtherHalfOfOpIntoA
+				LDB	A,Y			; B now holds key to check for
+				LSLB				; Double it for index
+				LDY	#KeymapTable
+				LEAY	B,Y
+				LDA	,Y
+				STA	Keyboard_Row
+				LDA	Keyboard_Scan
+				BITA	1,Y
+				BEQ	@Pressed
+				LEAX	2,X
+@Pressed			RTS
+
+*************************************************
+* F - Misc Functions - Subtable
+*************************************************			
+OpFXNN_Misc			LDY	#OpTableForFXNN
+				CLRA
+				LDB	Chip8_Instruction+1	; This line shouldn't be required..?
+				LSLB
+				ROLA				
+				JSR	[D,Y]
+				RTS				
+				
+*************************************************
+* FX07 - Sets VX to the value of the delay timer.
+*************************************************				
+OpFX07_SetVXToDisplayTimer	LDB	Chip8_DelayTimer
+				GetOtherHalfOfOpIntoA
+				LDY	#Chip8_Vars
+				STB	A,Y
+				RTS
+				
+*************************************************
+* FX0A - A key press is awaited, and then stored in VX.
+*************************************************
+OpFX0A_WaitForKeyIntoVX						
+@ResetLoop			LDY	#KeymapTable		; this is very, very hacky
+				LEAY	30,Y			; and probably wrong
+				LDB	#$F			; ciaran suggests LEAY -KeymapTable,Y
+@ScanLoop			LDA	,Y
+				STA	Keyboard_Row
+				LDA	Keyboard_Scan
+				BITA	1,Y
+				BEQ	@GotKeyPress
+				LEAY	-2,Y
+				DECB
+				CMPY	#KeymapTable-2
+				BEQ	@ResetLoop
+				JMP	@ScanLoop
+@GotKeyPress			LDY	#Chip8_Vars
+				GetOtherHalfOfOpIntoA
+				STB	A,Y
+				RTS
+				
+*************************************************
+* FX15 - Sets the delay timer to VX.
+*************************************************
+OpFX15_SetDelayTimerToVX	LDY	#Chip8_Vars
+				GetOtherHalfOfOpIntoA
+				LDB	A,Y
+				STB	Chip8_DelayTimer
+				RTS
+
+*************************************************
+* FX18 - Sets the sound timer to VX.
+*************************************************
+OpFX18_SetSoundTimerToVX	LDY	#Chip8_Vars
+				GetOtherHalfOfOpIntoA
+				LDB	A,Y
+				STB	Chip8_SoundTimer
+				RTS
+				
+*************************************************
+* FX1E - Adds VX to I.
+*************************************************
+OpFX1E_AddVXToI			PSHS	X
+				LDY	#Chip8_Vars
+				GetOtherHalfOfOpIntoA
+				LDB	A,Y
+				LDX	Chip8_I
+				ABX
+				STX	Chip8_I
+				PULS	X
+				RTS
+				
+*************************************************
+* FX29 - Sets I to the location of the sprite for the character in VX
+*************************************************
+OpFX29_SetIToFontForVX		PSHS	X
+				LDY	#Chip8_Vars
+				GetOtherHalfOfOpIntoA
+				LDB	A,Y
+				LDX	#HardwareFontTable
+				ABX
+				LSLB
+				LSLB
+				ABX				; X should now point to VX in font table
+				STX	Chip8_I
+				PULS	X
+				RTS
+				
+*************************************************
+* FX33 - Stores the Binary-coded decimal representation of VX, 
+* with the most significant of three digits at the address in I, 
+* the middle digit at I plus 1, and the least significant digit at I plus 2.
+*************************************************				
+OpFX33_BCDVXToI			LDY	#Chip8_Vars
+				GetOtherHalfOfOpIntoA
+				LDA	A,Y			; A = value to be BCD'd
+				LDY	#Chip8_I
+				LDB	#100			; B = value to be lower than
+				BSR	@Deci
+				LDB	#10
+				BSR	@Deci
+				LDB	#1
+@Deci				STB	Chip8_N
+				CLRB
+@Compare			CMPA	Chip8_N
+				BCS	@Stash
+				INCB
+				SUBA	Chip8_N
+				BRA	@Compare
+@Stash				STB	,Y+
+				RTS				; Auto-returns!
+				
+*************************************************
+* FX55 - Stores V0 to VX in memory starting at I
+*************************************************
+OpFX55_StoreV0ToVXAtI		PSHS	X
+				LDY	#Chip8_Vars
+				LDX	Chip8_I
+				GetOtherHalfOfOpIntoA
+				INCA				; Using pre-decrements, so have to offset first
+				LEAY	A,Y
+				LEAX	A,Y
+!				LDB	,-Y
+				STB	,-X
+				DECA
+				BNE	<
+				PULS	X
+				RTS
+				
+*************************************************
+* FX65 - Loads V0 to VX with values from memory starting at address I.
+*************************************************
+OpFX65_LoadVXToV0FromI		PSHS	X
+				LDY	#Chip8_Vars
+				LDX	Chip8_I
+				GetOtherHalfOfOpIntoA
+				INCA				; Using pre-decrements, so have to offset first
+				LEAY	A,Y
+				LEAX	A,Y
+!				LDB	,-X
+				STB	,-Y
+				DECA
+				BNE	<
+				PULS	X
+				RTS				
 				
 				
-				
-				
-				
+
+
+
+
+
+
+
+
+
+
+
 
 
 

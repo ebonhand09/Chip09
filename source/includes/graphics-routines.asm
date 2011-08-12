@@ -1,5 +1,5 @@
 *************************************************
-* SetVideoMode - Sets G1R, Graphics Page to $1600
+* SetVideoMode - Sets G1R, Graphics Page to $3000 - 11000 0 00000000
 *************************************************
 
 SetVideoMode			LDA	$FF23		; Get CRB
@@ -20,16 +20,16 @@ SetVideoMode			LDA	$FF23		; Get CRB
 				STA	$FFD2				
 				; F5	$FFD1 / $FFD0	- 0
 				STA	$FFD0				
-				; F4	$FFCF / $FFCE	- 0
-				STA	$FFCE				
+				; F4	$FFCF / $FFCE	- 1
+				STA	$FFCF				
 				; F3	$FFCD / $FFCC	- 1
 				STA	$FFCD				
 				; F2	$FFCB / $FFCA	- 0
 				STA	$FFCA				
-				; F1	$FFC9 / $FFC8	- 1
-				STA	$FFC9				
-				; F0	$FFC7 / $FFC6	- 1
-				STA	$FFC7
+				; F1	$FFC9 / $FFC8	- 0
+				STA	$FFC8				
+				; F0	$FFC7 / $FFC6	- 0
+				STA	$FFC6
 				
 				STA	$FFC1	; Ciaran fix?
 				

@@ -10,6 +10,13 @@
 ; Use CMPX / BNE for loop for now until I unroll
 
 IntHandler
+				TST	Chip8_DelayTimer
+				BNE	@SkipDecDelay
+				DEC	Chip8_DelayTimer
+@SkipDecDelay			TST	Chip8_SoundTimer
+				BNE	@SkipDecSound
+				DEC	Chip8_SoundTimer
+@SkipDecSound				
 				LDY	#GraphicsPage+16	; offset so I can write behind
 				PSHS	U
 				LDU	#Video_RAM
